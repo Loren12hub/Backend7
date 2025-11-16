@@ -5,49 +5,286 @@ const Articulo = require("../modelos/Articulo");
 
 const prueba = (req, res) => {
     return res.status(200).json({
-        mensaje: "Soy una acción de prueba en mi controlador"
+        mensaje: "Prueba exitosa",
+        timestamp: new Date().toISOString()
     });
 };
 
 const curso = (req, res) => {
     return res.status(200).json({
         mensaje: "Endpoint de cursos funcionando",
-        status: "success"
+        status: "success",
+        timestamp: new Date().toISOString()
     });
 };
 
 const crear = async (req, res) => {
-    // ... tu código de crear
+    try {
+        let parametros = req.body;
+
+        // Validación rápida
+        if (!parametros.titulo || !parametros.contenido) {
+            return res.status(400).json({
+                status: "error",
+                mensaje: "Faltan datos por enviar"
+            });
+        }
+
+        // Validar datos
+        const validacion = validarArticulo(parametros);
+        if (!validacion.success) {
+            return res.status(400).json({
+                status: "error",
+                mensaje: validacion.message
+            });
+        }
+
+        // Crear y guardar artículo
+        const articulo = new Articulo(parametros);
+        const articuloGuardado = await articulo.save();
+
+        return res.status(201).json({
+            status: "success",
+            articulo: articuloGuardado,
+            mensaje: "Artículo creado con éxito"
+        });
+
+    } catch (error) {
+        console.error("Error al crear artículo:", error);
+        return res.status(500).json({
+            status: "error",
+            mensaje: "No se pudo guardar el artículo"
+        });
+    }
 };
 
+/* Método para conseguir artículos - VERSIÓN RÁPIDA (SIN setTimeout) */
 const listar = async (req, res) => {
-    // ... tu código de listar
+    try {
+
+        const articulos = await Articulo.find({})
+            .sort({ fecha: -1 })
+            .limit(50) // Limitar resultados para mejor performance
+            .exec();
+
+        if (!articulos || articulos.length === 0) {
+            return res.status(404).json({
+                status: "error",
+                mensaje: "No se encontraron artículos"
+            });
+        }
+
+        return res.status(200).json({
+            status: "success",
+            contador: articulos.length,
+            articulos: articulos
+        });
+
+    } catch (error) {
+        console.error("Error al obtener artículos:", error);
+        return res.status(500).json({
+            status: "error",
+            mensaje: "Error al obtener artículos"
+        });
+    }
 };
 
 const mostrarUno = async (req, res) => {
-    // ... tu código de mostrarUno
+    try {
+        let id = req.params.id;
+        const articulo = await Articulo.findById(id);
+
+        if (!articulo) {
+            return res.status(404).json({
+                status: "error",
+                mensaje: "No se ha encontrado el artículo"
+            });
+        }
+
+        return res.status(200).json({
+            status: "success",
+            articulo: articulo
+        });
+    } catch (error) {
+        console.error("Error al buscar artículo:", error);
+        return res.status(500).json({
+            status: "error",
+            mensaje: "Error al buscar artículo"
+        });
+    }
 };
 
 const borrar = async (req, res) => {
-    // ... tu código de borrar
+    try {
+        let articulo_id = req.params.id;
+        const articuloBorrado = await Articulo.findOneAndDelete({ _id: articulo_id });
+
+        if (!articuloBorrado) {
+            return res.status(404).json({
+                status: "error",
+                mensaje: "No se encontró el artículo para borrar"
+            });
+        }
+
+        return res.status(200).json({
+            status: "success",
+            articulo: articuloBorrado,
+            mensaje: "Artículo borrado con éxito"
+        });
+    } catch (error) {
+        console.error("Error al borrar artículo:", error);
+        return res.status(500).json({
+            status: "error",
+            mensaje: "Error al borrar artículo"
+        });
+    }
 };
 
 const editar = async (req, res) => {
-    // ... tu código de editar
+    try {
+        let articulo_id = req.params.id;
+        let parametros = req.body;
+        
+        //  Validación correcta
+        const validacion = validarArticulo(parametros);
+        if (!validacion.success) {
+            return res.status(400).json({
+                status: "error",
+                mensaje: validacion.message
+            });
+        }
+
+        const articuloActualizado = await Articulo.findOneAndUpdate(
+            { _id: articulo_id }, 
+            parametros, 
+            { new: true }
+        );
+
+        if (!articuloActualizado) {
+            return res.status(404).json({
+                status: "error",
+                mensaje: "No se encontró el artículo para actualizar"
+            });
+        }
+
+        return res.status(200).json({
+            status: "success",
+            articulo: articuloActualizado,
+            mensaje: "Artículo actualizado con éxito"
+        });
+    } catch (error) {
+        console.error("Error al editar artículo:", error);
+        return res.status(500).json({
+            status: "error",
+            mensaje: "Error al editar artículo"
+        });
+    }
 };
 
 const subirImagen = async (req, res) => {
-    // ... tu código de subirImagen
+    try {
+        if (!req.file) {
+            return res.status(400).json({
+                status: "error",
+                mensaje: "No se ha proporcionado ninguna imagen"
+            });
+        }
+
+        // Validar tipo de archivo
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        if (!allowedTypes.includes(req.file.mimetype)) {
+            fs.unlink(req.file.path, () => {});
+            return res.status(400).json({
+                status: "error",
+                mensaje: "Formato de imagen no válido"
+            });
+        }
+
+        const articulo_id = req.params.id;
+        const articuloActualizado = await Articulo.findByIdAndUpdate(
+            articulo_id,
+            { imagen: req.file.filename },
+            { new: true }
+        );
+
+        if (!articuloActualizado) {
+            fs.unlink(req.file.path, () => {});
+            return res.status(404).json({
+                status: "error",
+                mensaje: "Artículo no encontrado"
+            });
+        }
+
+        return res.status(200).json({
+            status: "success",
+            articulo: articuloActualizado,
+            imagen: req.file.filename,
+            mensaje: "Imagen subida correctamente"
+        });
+
+    } catch (error) {
+        console.error("Error al subir imagen:", error);
+        if (req.file) fs.unlink(req.file.path, () => {});
+        return res.status(500).json({
+            status: "error",
+            mensaje: "Error al subir imagen"
+        });
+    }
 };
 
 const mostrarImagen = async (req, res) => {
-    // ... tu código de mostrarImagen
+    try {
+        let fichero = req.params.fichero;
+        let ruta_fisica = './img/articulos/' + fichero;
+
+        fs.stat(ruta_fisica, (error, stats) => {
+            if (error || !stats.isFile()) {
+                return res.status(404).json({
+                    status: "error",
+                    mensaje: "No se encontró la imagen"
+                });
+            }
+            return res.sendFile(path.resolve(ruta_fisica));
+        });
+    } catch (error) {
+        console.error("Error al mostrar imagen:", error);
+        return res.status(500).json({
+            status: "error",
+            mensaje: "Error al mostrar imagen"
+        });
+    }
 };
 
 const buscador = async (req, res) => {
-    // ... tu código de buscador
-};
+    try {
+        let busqueda = req.params.busqueda;
+        const articulosEncontrados = await Articulo.find({
+            "$or": [
+                { "titulo": { "$regex": busqueda, "$options": "i" } },
+                { "contenido": { "$regex": busqueda, "$options": "i" } },
+            ]
+        }).sort({ fecha: -1 }).exec();
 
+        if (!articulosEncontrados || articulosEncontrados.length === 0) {
+            return res.status(404).json({
+                status: "error",
+                mensaje: "No se encontraron artículos"
+            });
+        }
+
+        return res.status(200).json({
+            status: "success",
+            articulos: articulosEncontrados,
+            mensaje: "Artículos encontrados"
+        });
+    } catch (error) {
+        console.error("Error al buscar artículos:", error);
+        return res.status(500).json({
+            status: "error",
+            mensaje: "Error al buscar artículos"
+        });
+    }
+};
 
 module.exports = {
     prueba,
