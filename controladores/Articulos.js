@@ -188,94 +188,65 @@ const editar = async (req, res) => {
 //subir imgen
 const subirImagen = async (req, res) => {
     try {
-        console.log("Iniciando subida de imagen...");
-
         // Verificar si el archivo se ha cargado correctamente
         if (!req.file) {
-            console.log("No se recibió archivo");
             return res.status(400).json({
-                status: "error",
-                mensaje: "No se ha proporcionado ningún archivo"
+                status: "Error",
+                mensaje: "Petición inválida: No se ha proporcionado ningún archivo"
             });
         }
 
-        console.log("Archivo recibido:", req.file.originalname);
+        // Obtener el nombre del archivo y su extensión
+        const nombreArchivo = req.file.originalname;
+        const archivoSplit = nombreArchivo.split(".");
+        const extension = archivoSplit[archivoSplit.length - 1];
 
-        // Validar por MIME type
-        const allowedMimeTypes = ['image/jpeg', 'image/png'];
-        if (!allowedMimeTypes.includes(req.file.mimetype)) {
-            console.log("Tipo MIME no válido:", req.file.mimetype);
-            
+        // Verificar si la extensión del archivo es válida
+        if (extension !== "png" && extension !== "jpg" && extension !== "jpeg" && extension !== "gif") {
             // Borrar el archivo no válido
-            if (fs.existsSync(req.file.path)) {
-                fs.unlink(req.file.path, (error) => {
-                    if (error) console.error("Error al borrar archivo:", error);
-                });
-            }
-            
-            return res.status(400).json({
-                status: "error",
-                mensaje: "Formato de imagen no válido. Use JPEG, PNG, GIF o WebP"
-            });
-        }
-
-        // Recoger el ID del artículo
-        const articulo_id = req.params.id;
-        console.log("Buscando artículo ID:", articulo_id);
-
-        // Buscar el artículo por su ID
-        const articulo = await Articulo.findById(articulo_id);
-
-        // Verificar si se encontró el artículo
-        if (!articulo) {
-            console.log("Artículo no encontrado");
-            
-            // Borrar imagen si el artículo no existe
-            if (fs.existsSync(req.file.path)) {
-                fs.unlink(req.file.path, (error) => {
-                    if (error) console.error("Error al borrar archivo:", error);
-                });
-            }
-            
-            return res.status(404).json({
-                status: "error",
-                mensaje: "No se encontró el artículo"
-            });
-        }
-
-        console.log("Artículo encontrado:", articulo.titulo);
-
-        // LÍNEA CRÍTICA QUE FALTA: Asignar la nueva imagen al artículo
-        articulo.imagen = req.file.filename;
-
-        console.log(" Guardando artículo con nueva imagen...");
-        
-        // Guardar el artículo actualizado
-        const articuloActualizado = await articulo.save();
-
-        console.log(" Imagen subida correctamente:", req.file.filename);
-
-        // Devolver respuesta con el artículo actualizado
-        return res.status(200).json({
-            status: "success",
-            articulo: articuloActualizado,
-            imagen: req.file.filename,
-            mensaje: "Imagen subida correctamente"
-        });
-
-    } catch (error) {
-        console.error(" Error al subir la imagen:", error);
-        
-        // En caso de error, borrar la imagen subida
-        if (req.file && fs.existsSync(req.file.path)) {
             fs.unlink(req.file.path, (error) => {
-                if (error) console.error("Error al borrar archivo en catch:", error);
+                if (error) {
+                    console.error("Error al borrar el archivo:", error);
+                }
+            });
+            // Responder con un mensaje de error
+            return res.status(400).json({
+                status: "Error",
+                mensaje: "La extensión del archivo no es válida"
+            });
+        } else {
+            // Recoger el ID del artículo a editar
+            const articulo_id = req.params.id;
+
+            // Buscar el artículo por su ID
+            const articulo = await Articulo.findById(articulo_id);
+
+            // Verificar si se encontró el artículo
+            if (!articulo) {
+                return res.status(404).json({
+                    status: "Error",
+                    mensaje: "No se encontró el artículo para actualizar"
+                });
+            }
+
+            // Actualizar el artículo con la nueva imagen
+            articulo.imagen = req.file.filename;
+
+            // Guardar el artículo actualizado en la base de datos
+            const articuloActualizado = await articulo.save();
+
+            // Devolver respuesta con el artículo actualizado
+            return res.status(200).json({
+                status: "OK",
+                articulo: articuloActualizado,
+                mensaje: "Artículo actualizado con éxito"
             });
         }
-        
+    } catch (error) {
+        console.error("Error al subir la imagen:", error);
         return res.status(500).json({
-            status: "error",
-            mensaje: "Error al subir la imagen: " + error.message
+            status: "Error",
+            mensaje: "Hubo un problema al subir la imagen"
         });
     }
 };
