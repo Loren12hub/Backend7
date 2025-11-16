@@ -185,10 +185,10 @@ const editar = async (req, res) => {
         });
     }
 };
-
+//subir imgen
 const subirImagen = async (req, res) => {
     try {
-        console.log(" Iniciando subida de imagen...");
+        console.log("Iniciando subida de imagen...");
 
         // Verificar si el archivo se ha cargado correctamente
         if (!req.file) {
@@ -199,12 +199,12 @@ const subirImagen = async (req, res) => {
             });
         }
 
-        console.log(" Archivo recibido:", req.file.originalname);
+        console.log("Archivo recibido:", req.file.originalname);
 
-        //  MEJOR: Validar por MIME type (más seguro)
+        // Validar por MIME type
         const allowedMimeTypes = ['image/jpeg', 'image/png'];
         if (!allowedMimeTypes.includes(req.file.mimetype)) {
-            console.log(" Tipo MIME no válido:", req.file.mimetype);
+            console.log("Tipo MIME no válido:", req.file.mimetype);
             
             // Borrar el archivo no válido
             if (fs.existsSync(req.file.path)) {
@@ -221,14 +221,14 @@ const subirImagen = async (req, res) => {
 
         // Recoger el ID del artículo
         const articulo_id = req.params.id;
-        console.log(" Buscando artículo ID:", articulo_id);
+        console.log("Buscando artículo ID:", articulo_id);
 
         // Buscar el artículo por su ID
         const articulo = await Articulo.findById(articulo_id);
 
         // Verificar si se encontró el artículo
         if (!articulo) {
-            console.log(" Artículo no encontrado");
+            console.log("Artículo no encontrado");
             
             // Borrar imagen si el artículo no existe
             if (fs.existsSync(req.file.path)) {
@@ -243,14 +243,17 @@ const subirImagen = async (req, res) => {
             });
         }
 
-        console.log(" Artículo encontrado:", articulo.titulo);
-        
-        console.log("Guardando artículo con nueva imagen...");
+        console.log("Artículo encontrado:", articulo.titulo);
+
+        // LÍNEA CRÍTICA QUE FALTA: Asignar la nueva imagen al artículo
+        articulo.imagen = req.file.filename;
+
+        console.log(" Guardando artículo con nueva imagen...");
         
         // Guardar el artículo actualizado
         const articuloActualizado = await articulo.save();
 
-        console.log("Imagen subida correctamente:", req.file.filename);
+        console.log(" Imagen subida correctamente:", req.file.filename);
 
         // Devolver respuesta con el artículo actualizado
         return res.status(200).json({
@@ -261,9 +264,9 @@ const subirImagen = async (req, res) => {
         });
 
     } catch (error) {
-        console.error("Error al subir la imagen:", error);
+        console.error(" Error al subir la imagen:", error);
         
-        // IMPORTANTE: En caso de error, borrar la imagen subida
+        // En caso de error, borrar la imagen subida
         if (req.file && fs.existsSync(req.file.path)) {
             fs.unlink(req.file.path, (error) => {
                 if (error) console.error("Error al borrar archivo en catch:", error);
