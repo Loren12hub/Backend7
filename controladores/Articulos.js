@@ -186,41 +186,73 @@ const editar = async (req, res) => {
     }
 };
 
-// Subir imagen para artículo
 const subirImagen = async (req, res) => {
     try {
+        console.log(" Iniciando subida de imagen...");
+
+        // Verificar si el archivo se ha cargado correctamente
         if (!req.file) {
+            console.log("No se recibió archivo");
             return res.status(400).json({
                 status: "error",
-                mensaje: "No se ha proporcionado ninguna imagen"
+                mensaje: "No se ha proporcionado ningún archivo"
             });
         }
 
-        // Validar tipo de archivo
-        const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-        if (!allowedTypes.includes(req.file.mimetype)) {
-            fs.unlink(req.file.path, () => {});
+        console.log(" Archivo recibido:", req.file.originalname);
+
+        //  MEJOR: Validar por MIME type (más seguro)
+        const allowedMimeTypes = ['image/jpeg', 'image/png'];
+        if (!allowedMimeTypes.includes(req.file.mimetype)) {
+            console.log(" Tipo MIME no válido:", req.file.mimetype);
+            
+            // Borrar el archivo no válido
+            if (fs.existsSync(req.file.path)) {
+                fs.unlink(req.file.path, (error) => {
+                    if (error) console.error("Error al borrar archivo:", error);
+                });
+            }
+            
             return res.status(400).json({
                 status: "error",
-                mensaje: "Formato de imagen no válido"
+                mensaje: "Formato de imagen no válido. Use JPEG, PNG, GIF o WebP"
             });
         }
 
+        // Recoger el ID del artículo
         const articulo_id = req.params.id;
-        const articuloActualizado = await Articulo.findByIdAndUpdate(
-            articulo_id,
-            { imagen: req.file.filename },
-            { new: true }
-        );
+        console.log(" Buscando artículo ID:", articulo_id);
 
-        if (!articuloActualizado) {
-            fs.unlink(req.file.path, () => {});
+        // Buscar el artículo por su ID
+        const articulo = await Articulo.findById(articulo_id);
+
+        // Verificar si se encontró el artículo
+        if (!articulo) {
+            console.log(" Artículo no encontrado");
+            
+            // Borrar imagen si el artículo no existe
+            if (fs.existsSync(req.file.path)) {
+                fs.unlink(req.file.path, (error) => {
+                    if (error) console.error("Error al borrar archivo:", error);
+                });
+            }
+            
             return res.status(404).json({
                 status: "error",
-                mensaje: "Artículo no encontrado"
+                mensaje: "No se encontró el artículo"
             });
         }
 
+        console.log(" Artículo encontrado:", articulo.titulo);
+        
+        console.log("Guardando artículo con nueva imagen...");
+        
+        // Guardar el artículo actualizado
+        const articuloActualizado = await articulo.save();
+
+        console.log("Imagen subida correctamente:", req.file.filename);
+
+        // Devolver respuesta con el artículo actualizado
         return res.status(200).json({
             status: "success",
             articulo: articuloActualizado,
@@ -229,11 +261,18 @@ const subirImagen = async (req, res) => {
         });
 
     } catch (error) {
-        console.error("Error al subir imagen:", error);
-        if (req.file) fs.unlink(req.file.path, () => {});
+        console.error("Error al subir la imagen:", error);
+        
+        // IMPORTANTE: En caso de error, borrar la imagen subida
+        if (req.file && fs.existsSync(req.file.path)) {
+            fs.unlink(req.file.path, (error) => {
+                if (error) console.error("Error al borrar archivo en catch:", error);
+            });
+        }
+        
         return res.status(500).json({
             status: "error",
-            mensaje: "Error al subir imagen"
+            mensaje: "Error al subir la imagen: " + error.message
         });
     }
 };
