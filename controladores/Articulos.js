@@ -3,6 +3,7 @@ const path = require('path')
 const { validarArticulo } = require('../helpers/Validar')
 const Articulo = require("../modelos/Articulo");
 
+// Función de prueba simple
 const prueba = (req, res) => {
     return res.status(200).json({
         mensaje: "Prueba exitosa",
@@ -10,6 +11,7 @@ const prueba = (req, res) => {
     });
 };
 
+// Endpoint de información
 const curso = (req, res) => {
     return res.status(200).json({
         mensaje: "Endpoint de cursos funcionando",
@@ -18,6 +20,7 @@ const curso = (req, res) => {
     });
 };
 
+// Crear nuevo artículo
 const crear = async (req, res) => {
     try {
         let parametros = req.body;
@@ -58,13 +61,12 @@ const crear = async (req, res) => {
     }
 };
 
-/* Método para conseguir artículos - VERSIÓN RÁPIDA (SIN setTimeout) */
+// Listar todos los artículos
 const listar = async (req, res) => {
     try {
-
         const articulos = await Articulo.find({})
             .sort({ fecha: -1 })
-            .limit(50) // Limitar resultados para mejor performance
+            .limit(50)
             .exec();
 
         if (!articulos || articulos.length === 0) {
@@ -89,6 +91,7 @@ const listar = async (req, res) => {
     }
 };
 
+// Mostrar un artículo específico
 const mostrarUno = async (req, res) => {
     try {
         let id = req.params.id;
@@ -114,6 +117,7 @@ const mostrarUno = async (req, res) => {
     }
 };
 
+// Borrar artículo
 const borrar = async (req, res) => {
     try {
         let articulo_id = req.params.id;
@@ -140,12 +144,13 @@ const borrar = async (req, res) => {
     }
 };
 
+// Editar artículo
 const editar = async (req, res) => {
     try {
         let articulo_id = req.params.id;
         let parametros = req.body;
         
-        //  Validación correcta
+        // Validación correcta
         const validacion = validarArticulo(parametros);
         if (!validacion.success) {
             return res.status(400).json({
@@ -181,6 +186,7 @@ const editar = async (req, res) => {
     }
 };
 
+// Subir imagen para artículo
 const subirImagen = async (req, res) => {
     try {
         if (!req.file) {
@@ -232,6 +238,7 @@ const subirImagen = async (req, res) => {
     }
 };
 
+// Mostrar imagen
 const mostrarImagen = async (req, res) => {
     try {
         let fichero = req.params.fichero;
@@ -255,6 +262,7 @@ const mostrarImagen = async (req, res) => {
     }
 };
 
+// Buscar artículos
 const buscador = async (req, res) => {
     try {
         let busqueda = req.params.busqueda;
@@ -286,6 +294,7 @@ const buscador = async (req, res) => {
     }
 };
 
+// Exportar todas las funciones
 module.exports = {
     prueba,
     curso,
