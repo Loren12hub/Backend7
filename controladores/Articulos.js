@@ -196,7 +196,7 @@ const subirImagen = async (req, res) => {
             });
         }
 
-        // Obtener el nombre del archivo y su extensión
+        // Obtener el nombre del archivo y ssu extensión
         const nombreArchivo = req.file.originalname;
         const archivoSplit = nombreArchivo.split(".");
         const extension = archivoSplit[archivoSplit.length - 1];
