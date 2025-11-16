@@ -8,7 +8,7 @@ const fs = require('fs');
 // CONFIGURACIÓN CORRECTA PARA RENDER.COM
 const almacenamiento = multer.diskStorage({
     destination: function (req, file, cb) {
-        //  USAR /tmp/ EN RENDER - SIEMPRE FUNCIONA
+        
         const uploadPath = '/tmp/articulos/';
         
         console.log('Configurando directorio para Render...');

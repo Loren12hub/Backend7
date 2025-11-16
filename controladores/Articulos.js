@@ -185,86 +185,110 @@ const editar = async (req, res) => {
         });
     }
 };
-//subir imgen
 const subirImagen = async (req, res) => {
     try {
+        console.log('=== INICIANDO SUBIDA DE IMAGEN ===');
+        console.log('ID recibido:', req.params.id);
+        console.log('Archivo recibido:', req.file ? 'SÍ' : 'NO');
+
         // Verificar si el archivo se ha cargado correctamente
         if (!req.file) {
+            console.log('❌ No se recibió archivo');
             return res.status(400).json({
-                status: "Error",
-                mensaje: "Petición inválida: No se ha proporcionado ningún archivo"
+                status: "error",
+                mensaje: "No se ha proporcionado ningún archivo"
             });
         }
 
-        // Obtener el nombre del archivo y ssu extensión
-        const nombreArchivo = req.file.originalname;
-        const archivoSplit = nombreArchivo.split(".");
-        const extension = archivoSplit[archivoSplit.length - 1];
+        console.log('📁 Archivo subido:', {
+            nombre: req.file.filename,
+            original: req.file.originalname,
+            tamaño: req.file.size,
+            ruta: req.file.path
+        });
 
-        // Verificar si la extensión del archivo es válida
-        if (extension !== "png" && extension !== "jpg" && extension !== "jpeg" && extension !== "gif") {
-            // Borrar el archivo no válido
+        // Recoger el ID del artículo a editar
+        const articulo_id = req.params.id;
+
+        // Buscar el artículo por su ID
+        const articulo = await Articulo.findById(articulo_id);
+
+        // Verificar si se encontró el artículo
+        if (!articulo) {
+            // Limpiar archivo subido si el artículo no existe
             fs.unlink(req.file.path, (error) => {
-                if (error) {
-                    console.error("Error al borrar el archivo:", error);
-                }
+                if (error) console.error("Error al borrar archivo:", error);
             });
-            // Responder con un mensaje de error
-            return res.status(400).json({
-                status: "Error",
-                mensaje: "La extensión del archivo no es válida"
-            });
-        } else {
-            // Recoger el ID del artículo a editar
-            const articulo_id = req.params.id;
-
-            // Buscar el artículo por su ID
-            const articulo = await Articulo.findById(articulo_id);
-
-            // Verificar si se encontró el artículo
-            if (!articulo) {
-                return res.status(404).json({
-                    status: "Error",
-                    mensaje: "No se encontró el artículo para actualizar"
-                });
-            }
-
-            // Actualizar el artículo con la nueva imagen
-            articulo.imagen = req.file.filename;
-
-            // Guardar el artículo actualizado en la base de datos
-            const articuloActualizado = await articulo.save();
-
-            // Devolver respuesta con el artículo actualizado
-            return res.status(200).json({
-                status: "OK",
-                articulo: articuloActualizado,
-                mensaje: "Artículo actualizado con éxito"
+            
+            return res.status(404).json({
+                status: "error",
+                mensaje: "No se encontró el artículo"
             });
         }
+
+        // Si el artículo tenía una imagen anterior, eliminarla
+        if (articulo.imagen) {
+            const rutaAnterior = `/tmp/articulos/${articulo.imagen}`;
+            if (fs.existsSync(rutaAnterior)) {
+                fs.unlinkSync(rutaAnterior);
+            }
+        }
+
+        // Actualizar el artículo con la nueva imagen
+        articulo.imagen = req.file.filename;
+        const articuloActualizado = await articulo.save();
+
+        console.log('✅ Imagen actualizada para artículo:', articulo_id);
+
+        // Devolver respuesta con el artículo actualizado
+        return res.status(200).json({
+            status: "success",
+            articulo: articuloActualizado,
+            archivo: {
+                nombre: req.file.filename,
+                ruta: `/api/imagen/${req.file.filename}`,
+                tamaño: req.file.size
+            },
+            mensaje: "Imagen subida correctamente"
+        });
+
     } catch (error) {
-        console.error("Error al subir la imagen:", error);
+        console.error("❌ Error al subir la imagen:", error);
+        
+        // Limpiar archivo en caso de error
+        if (req.file && fs.existsSync(req.file.path)) {
+            fs.unlinkSync(req.file.path);
+        }
+        
         return res.status(500).json({
-            status: "Error",
-            mensaje: "Hubo un problema al subir la imagen"
+            status: "error",
+            mensaje: "Error interno del servidor al subir imagen",
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
         });
     }
 };
 
-// Mostrar imagen
-const mostrarImagen = async (req, res) => {
+// MOSTRAR IMAGEN - VERSIÓN CORREGIDA
+const mostrarImagen = (req, res) => {
     try {
         let fichero = req.params.fichero;
-        let ruta_fisica = './img/articulos/' + fichero;
+        
+        // RUTA CORREGIDA para Render.com
+        let ruta_fisica = path.join('/tmp/articulos/', fichero);
+        
+        console.log('Buscando imagen en:', ruta_fisica);
 
         fs.stat(ruta_fisica, (error, stats) => {
             if (error || !stats.isFile()) {
+                console.log('Imagen no encontrada:', ruta_fisica);
                 return res.status(404).json({
                     status: "error",
                     mensaje: "No se encontró la imagen"
                 });
             }
-            return res.sendFile(path.resolve(ruta_fisica));
+            
+            console.log(' Imagen encontrada, enviando...');
+            return res.sendFile(ruta_fisica);
         });
     } catch (error) {
         console.error("Error al mostrar imagen:", error);
@@ -274,6 +298,9 @@ const mostrarImagen = async (req, res) => {
         });
     }
 };
+   
+
+
 
 // Buscar artículos
 const buscador = async (req, res) => {
