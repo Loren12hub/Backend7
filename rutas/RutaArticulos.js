@@ -50,6 +50,7 @@ router.get("/articulos/:ultimos?", ArticuloController.listar);
 router.get("/articulo/:id", ArticuloController.mostrarUno);
 router.delete("/articulo/:id", ArticuloController.borrar);
 router.put("/articulo/:id", ArticuloController.editar);
+
 router.post("/subir-imagen/:id", subidas.single("archivo0"), ArticuloController.subirImagen);
 router.get("/imagen/:fichero", ArticuloController.mostrarImagen);
 router.get("/buscar/:busqueda", ArticuloController.buscador);
