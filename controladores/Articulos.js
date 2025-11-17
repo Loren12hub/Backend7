@@ -194,14 +194,14 @@ const subirImagen = async (req, res) => {
         console.log('Archivo recibido:', req.file ? 'SÍ' : 'NO');
 
         if (!req.file) {
-            console.log('❌ No se recibió archivo');
+            console.log('No se recibió archivo');
             return res.status(400).json({
                 status: "error",
                 mensaje: "No se ha proporcionado ningún archivo"
             });
         }
 
-        console.log('📁 Archivo subido:', {
+        console.log('Archivo subido:', {
             nombre: req.file.filename,
             original: req.file.originalname,
             tamaño: req.file.size,
@@ -233,7 +233,7 @@ const subirImagen = async (req, res) => {
         articulo.imagen = req.file.filename;
         const articuloActualizado = await articulo.save();
 
-        console.log('✅ Imagen actualizada para artículo:', articulo_id);
+        console.log('Imagen actualizada para artículo:', articulo_id);
 
         return res.status(200).json({
             status: "success",
@@ -247,7 +247,7 @@ const subirImagen = async (req, res) => {
         });
 
     } catch (error) {
-        console.error("❌ Error al subir la imagen:", error);
+        console.error("Error al subir la imagen:", error);
         if (req.file && fs.existsSync(req.file.path)) {
             fs.unlinkSync(req.file.path);
         }

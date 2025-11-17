@@ -24,7 +24,8 @@ app.use(express.urlencoded({extended: true})) // convirtiendo formato encode a J
 const rutas_articlo = require("./rutas/RutaArticulos")
 
 //cargando rutas
-app.use("/api", rutas_articlo)
+
+
 /*FIN RUTAS*/
 
 // rutas de prueba hardcodeadas
