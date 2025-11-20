@@ -1,0 +1,388 @@
+.admin-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, var(--wine-50) 0%, var(--gray-50) 50%, var(--green-50) 100%);
+  padding: 2rem 1rem;
+  
+  /* SOLO AGREGA ESTA LÍNEA */
+  padding-top: 60px;
+}
+
+/* TODO EL RESTO DE TU CÓDIGO PERMANECE EXACTAMENTE IGUAL */
+.admin-header {
+  text-align: center;
+  margin-bottom: 3rem;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.admin-title {
+  font-size: 2.5rem;
+  font-weight: 300;
+  color: var(--gray-800);
+  margin-bottom: 1rem;
+}
+
+.admin-title-gradient {
+  background: linear-gradient(135deg, var(--wine-600) 0%, var(--wine-800) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 600;
+}
+
+.admin-subtitle {
+  color: var(--gray-600);
+  font-size: 1.125rem;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.admin-main-content {
+  max-width: 1000px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+/* Tabs de Navegación */
+.admin-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--gray-200);
+  background: var(--gray-50);
+}
+
+.admin-tab {
+  flex: 1;
+  padding: 1rem 2rem;
+  border: none;
+  background: transparent;
+  color: var(--gray-600);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-bottom: 2px solid transparent;
+}
+
+.admin-tab.active {
+  background: white;
+  color: var(--wine-600);
+  border-bottom: 2px solid var(--wine-600);
+}
+
+.admin-tab:hover {
+  background: var(--gray-100);
+}
+
+/* Contenido de los Tabs */
+.admin-tab-content {
+  padding: 2rem;
+}
+
+/* Formulario Agregar Producto */
+.admin-form-container {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.admin-form-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--gray-800);
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.admin-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.form-row-2-1 {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--gray-700);
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--gray-300);
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+  outline: none;
+  border-color: var(--wine-300);
+  box-shadow: 0 0 0 3px rgba(190, 24, 93, 0.1);
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+/* ========== ESTILOS PARA SUBIR FOTO ========== */
+.upload-section {
+  margin: 1.5rem 0;
+}
+
+.upload-area {
+  border: 2px dashed var(--gray-300);
+  border-radius: 0.5rem;
+  padding: 2rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  background: var(--gray-50);
+  position: relative;
+}
+
+.upload-area:hover {
+  border-color: var(--wine-300);
+  background: var(--wine-50);
+}
+
+.upload-area.has-image {
+  border-color: var(--wine-500);
+  background: var(--wine-50);
+  padding: 1rem;
+}
+
+.upload-icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  color: var(--gray-500);
+}
+
+.upload-text {
+  color: var(--gray-600);
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.upload-hint {
+  font-size: 0.875rem;
+  color: var(--gray-500);
+}
+
+.file-input {
+  display: none;
+}
+
+.preview-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.image-preview {
+  max-width: 200px;
+  max-height: 150px;
+  border-radius: 0.5rem;
+  border: 2px solid var(--gray-200);
+  object-fit: cover;
+}
+
+.remove-image {
+  background: #ff4444;
+  color: white;
+  border: none;
+  border-radius: 0.375rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: background 0.3s ease;
+}
+
+.remove-image:hover {
+  background: #cc0000;
+}
+
+/* Estilos para mensajes */
+.message {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+}
+
+.message.success {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.message.error {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+/* ========== FIN ESTILOS PARA SUBIR FOTO ========== */
+
+/* Botón de Envío */
+.submit-button {
+  width: 100%;
+  padding: 1rem 2rem;
+  background-color: var(--wine-600);
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 1rem;
+}
+
+.submit-button:hover {
+  background-color: var(--wine-700);
+  transform: translateY(-2px);
+}
+
+/* Secciones de Placeholder */
+.placeholder-section {
+  text-align: center;
+  padding: 3rem;
+}
+
+.placeholder-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.placeholder-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--gray-800);
+  margin-bottom: 1rem;
+}
+
+.placeholder-text {
+  color: var(--gray-600);
+  margin-bottom: 2rem;
+}
+
+.placeholder-box {
+  background: var(--gray-50);
+  padding: 2rem;
+  border-radius: 0.75rem;
+  border: 2px dashed var(--gray-300);
+}
+
+.placeholder-message {
+  color: var(--gray-500);
+  font-style: italic;
+}
+
+/* Footer del Admin */
+.admin-footer {
+  max-width: 800px;
+  margin: 3rem auto 0 auto;
+  text-align: center;
+  color: var(--gray-600);
+  font-size: 0.875rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .admin-container {
+    padding: 1rem 0.5rem;
+    padding-top: 60px; /* También aquí */
+  }
+  
+  .admin-title {
+    font-size: 2rem;
+  }
+  
+  .admin-tabs {
+    flex-direction: column;
+  }
+  
+  .admin-tab {
+    padding: 0.75rem 1rem;
+  }
+  
+  .form-row-2,
+  .form-row-2-1 {
+    grid-template-columns: 1fr;
+  }
+  
+  .admin-tab-content {
+    padding: 1.5rem;
+  }
+  
+  .placeholder-section {
+    padding: 2rem 1rem;
+  }
+  
+  /* Responsive para subir foto */
+  .upload-area {
+    padding: 1.5rem;
+  }
+  
+  .upload-area.has-image {
+    padding: 1rem;
+  }
+  
+  .image-preview {
+    max-width: 150px;
+    max-height: 120px;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-header {
+    margin-bottom: 2rem;
+  }
+  
+  .admin-title {
+    font-size: 1.75rem;
+  }
+  
+  .admin-subtitle {
+    font-size: 1rem;
+  }
+  
+  /* Responsive para subir foto en móviles pequeños */
+  .upload-area {
+    padding: 1rem;
+  }
+  
+  .upload-text {
+    font-size: 0.9rem;
+  }
+  
+  .upload-hint {
+    font-size: 0.8rem;
+  }
+}

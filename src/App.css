@@ -1,0 +1,16 @@
+/* Reset básico */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.app-container {
+  min-height: 100vh;
+}
+
+/* Clase global para todas las páginas */
+.page-container {
+  padding-top: 60px;
+  min-height: 100vh;
+}
